@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
@@ -16,6 +17,9 @@
 </head>
 
 <body>
+
+
+
     {{-- CABEÇALHO --}}
     <header class="w-full h-[420px] bg-zinc-900 bg-home bg-cover bg-center">
         <div class="w-full h-full flex flex-col justify-center items-center">
@@ -58,9 +62,10 @@
                     <div class="flex items-center gap-2 justify-between mt-3">
                         <p class="font-bold text-lg">R$ 20.90</p>
                         <button class="bg-gray-900 px-5 rounded add-to-cart-btn" data-name="Hamburguer Tal"
-                            data-price="20.90">
+                            data-price="20.90" data-image="{{ asset('/assets/hamb-1.png') }}">
                             <i class="fa fa-cart-plus text-lg text-white"></i>
                         </button>
+
                     </div>
                 </div>
             </div>
@@ -82,7 +87,9 @@
                     <div class="flex items-center gap-2 justify-between mt-3">
                         <p class="font-bold text-lg">R$ 24.90</p>
                         <button class="bg-gray-900 px-5 rounded add-to-cart-btn" data-name="Hamburguer Cheddar"
-                            data-price="24.90">
+                            data-price="24.90"
+                            data-image="{{ asset('/assets/hamb-2.png') }}"
+                            >
                             <i class="fa fa-cart-plus text-lg text-white"></i>
                         </button>
                     </div>
@@ -106,7 +113,9 @@
                     <div class="flex items-center gap-2 justify-between mt-3">
                         <p class="font-bold text-lg">R$ 28.50</p>
                         <button class="bg-gray-900 px-5 rounded add-to-cart-btn" data-name="Hamburguer Vegano"
-                            data-price="28.50">
+                            data-price="28.50"
+                            data-image="{{ asset('/assets/hamb-3.png') }}"
+                            >
                             <i class="fa fa-cart-plus text-lg text-white"></i>
                         </button>
                     </div>
@@ -129,7 +138,9 @@
                     <div class="flex items-center gap-2 justify-between mt-3">
                         <p class="font-bold text-lg">R$ 22.50</p>
                         <button class="bg-gray-900 px-5 rounded add-to-cart-btn" data-name="Hamburguer de Frango"
-                            data-price="22.50">
+                            data-price="22.50"
+                            data-image="{{ asset('/assets/hamb-4.png') }}"
+                            >
                             <i class="fa fa-cart-plus text-lg text-white"></i>
                         </button>
                     </div>
@@ -162,7 +173,9 @@
                     <div class="flex items-center gap-2 justify-between mt-3">
                         <p class="font-bold text-lg">R$ 6.00</p>
                         <button class="bg-gray-900 px-5 rounded add-to-cart-btn" data-name="Coca Lata"
-                            data-price="6.00">
+                            data-price="6.00"
+                            data-image="{{ asset('/assets/refri-1.png') }}"
+                            >
                             <i class="fa fa-cart-plus text-lg text-white"></i>
                         </button>
                     </div>
@@ -186,7 +199,7 @@
                     <div class="flex items-center gap-2 justify-between mt-3">
                         <p class="font-bold text-lg">R$ 6.00</p>
                         <button class="bg-gray-900 px-5 rounded add-to-cart-btn" data-name="Guarana Lata"
-                            data-price="6.00">
+                            data-price="6.00" data-image="{{ asset('/assets/refri-2.png') }}">
                             <i class="fa fa-cart-plus text-lg text-white"></i>
                         </button>
                     </div>
@@ -201,7 +214,8 @@
 
 
     {{-- MODAL DO CARRINHO --}}
-    <div class="bg-black/60 w-full h-full fixed top-0 left-0 z-[99] items-center justify-center hidden">
+    <div id="cart-modal"
+        class="bg-black/60 w-full h-full fixed top-0 left-0 z-[99] items-center justify-center hidden">
         <div class="bg-white p-5 rounded-md min-w-[90%] md:min-w-[600px]">
             <h2 class="text-center font-bold text-2xl mb-2">
                 Meu Carrinho
@@ -213,11 +227,11 @@
 
             <p class="font-bold mt-4">Total: <span id="cart-total">0.00</span></p>
 
-            <label for="adress" class="font-bold">Endereço de Entrega<span class="text-red-500">*</span></label>
-            <input type="text" name="adress" id="adress" placeholder="Digite seu Endereço completo"
+            <label for="address" class="font-bold">Endereço de Entrega<span class="text-red-500">*</span></label>
+            <input type="text" name="adress" id="address" placeholder="Digite seu Endereço completo"
                 class="w-full border-2 p-1 rounded my-1">
 
-            <p class="text-red-500 hidden" id="adress-warning">Digite seu Endereço completo</p>
+            <p class="text-red-500 hidden" id="address-warn">Digite seu Endereço completo!</p>
 
 
             <div class="flex items-center justify-between mt-5 w-full">
@@ -239,6 +253,9 @@
     </footer>
     {{-- FIM FOOTER DE CARRINHO --}}
 
+
+    <script src="{{ asset('js/script.js') }}"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </body>
 
 </html>
