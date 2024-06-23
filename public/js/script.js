@@ -38,9 +38,9 @@ menu.addEventListener('click', function (e) {
     const name = parentButton.getAttribute('data-name');
     const price = parseFloat(parentButton.getAttribute('data-price'));
     const img = parentButton.getAttribute("data-image");
-
+    const id = parentButton.getAttribute("data-id")
     // Adiciona ao carrinho passando a URL da imagem
-    addToCart(img, name, price);
+    addToCart(id, img, name, price);
   }
 });
 
@@ -48,19 +48,20 @@ menu.addEventListener('click', function (e) {
 
 
 //FUNÇÃO PARA ADICIONAR NO CARRINHO
-function addToCart(img, name, price) {
-  const hasItem = cart.find(item => item.name === name);
+function addToCart(id, img, name, price) {
+  const hasItem = cart.find(item => item.id === id);
 
   if (hasItem) {
-      hasItem.quantity += 1;
+    hasItem.quantity += 1;
   } else {
-    
-      cart.push({
-          img,
-          name,
-          price,
-          quantity: 1,
-      });
+
+    cart.push({
+      id,
+      img,
+      name,
+      price,
+      quantity: 1,
+    });
   }
 
   readCartModal();
@@ -90,7 +91,7 @@ function readCartModal() {
             </div>
         </div>
 
-        <button class="remove-from-cart-btn" data-name="${item.name}">
+        <button class="remove-from-cart-btn bg-red-500 py-2 px-4 rounded text-white" data-name="${item.name}">
             Remover
         </button>
     </div>
@@ -155,50 +156,107 @@ addressInput.addEventListener('input', function (e) {
 
 //FINALIZAR PEDIDO
 checkoutBtn.addEventListener('click', function () {
-
   const isOpen = checkOpenRestaurant();
-
-  // if (!isOpen) {
-  //   Toastify({
-  //     text: "Ops, o Restaurante está fechado!",
-  //     duration: 3000,
-  //     close: true,
-  //     gravity: "top", // `top` or `bottom`
-  //     position: "right", // `left`, `center` or `right`
-  //     stopOnFocus: true, // Prevents dismissing of toast on hover
-  //     style: {
-  //       background: "#ef4444",
-  //     },
-  //     onClick: function () { } // Callback after click
-  //   }).showToast();
-  //   return
-  // }
-
+  if (!isOpen) {
+    Toastify({
+      text: "Ops, o Restaurante está fechado!",
+      duration: 3000,
+      close: true,
+      gravity: "top", // `top` or `bottom`
+      position: "right", // `left`, `center` or `right`
+      stopOnFocus: true, // Prevents dismissing of toast on hover
+      style: {
+        background: "#ef4444",
+      },
+      onClick: function () { } // Callback after click
+    }).showToast();
+    return
+  }
+  // Verifica se há itens no carrinho
   if (cart.length === 0) {
     return;
   }
-  if (addressInput.value === "") {
-    addressWarning.classList.remove("hidden")
-    // addressInput.classList.add('border', 'border-[red]');
+
+  // Verifica se o nome do usuário está preenchido
+  const userName = document.getElementById('user-name').value.trim();
+  if (userName === "") {
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: 'Por favor, digite seu nome!',
+    });
     return;
   }
 
-  //ENVIAR PARA O ZIPZOP
-  const cartItemsFormatted = cart.map((item) => {
-    return `${item.name} - Quantidade: ${item.quantity} - Preço unitário: ${item.price}`;
-  }).join("\n");
+  // Seleciona os elementos de rádio e endereços
+  const deliveryRadio = document.getElementById('delivery-radio');
+  const pickupRadio = document.getElementById('pickup-radio');
+  const addressInput = document.getElementById('address');
+  const addressWarning = document.getElementById('address-warn');
 
-  const message = encodeURIComponent(cartItemsFormatted);
-  const phone = "+558894155531";
+  // Verifica se é para entrega ou retirada
+  let orderDetails = "";
+  if (deliveryRadio.checked) {
+    // Verifica se o endereço está preenchido para entrega
+    const deliveryAddressValue = addressInput.value.trim();
+    if (deliveryAddressValue === "") {
+      addressWarning.classList.remove("hidden");
+      return;
+    }
+    orderDetails = `Endereço de entrega: ${deliveryAddressValue}`;
+  } else if (pickupRadio.checked) {
+    orderDetails = "Pedido para retirada na loja";
+  } else {
+    // Caso nenhum método de entrega esteja selecionado
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: 'Selecione uma opção de entrega (Entrega ou Retirada)!',
+    });
+    return;
+  }
 
-  window.open(`http://wa.me/${phone}?text=${message} Endereço: ${addressInput.value}`, "_blank");
+  // Confirmação do pedido
+  Swal.fire({
+    title: "Confirmar Pedido",
+    html: `Nome: ${userName}<br>${orderDetails}<br><br>Confirma o pedido?`,
+    showCancelButton: true,
+    confirmButtonText: `Confirmar`,
+    cancelButtonText: `Cancelar`,
+    icon: 'question',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Monta a mensagem do pedido para enviar via WhatsApp
+      const cartItemsFormatted = cart.map((item) => {
+        return `${item.name} - Quantidade: ${item.quantity} - Preço unitário: R$ ${item.price.toFixed(2)}`;
+      }).join("\n");
 
-  cart = [];
-  addressInput.value = "";
-  readCartModal()
+      const message = encodeURIComponent(`Pedido de ${userName}:\n\n${cartItemsFormatted}\n\n${orderDetails}`);
+      const phone = "+558894155531";
 
+      // Abre a janela do WhatsApp com a mensagem do pedido
+      window.open(`http://wa.me/${phone}?text=${message}`, "_blank");
 
-})
+      // Limpa o carrinho e fecha o modal
+      cart = [];
+      addressInput.value = "";
+      cartModal.style.display = "none";
+      readCartModal();
+
+      // Feedback de sucesso
+      Swal.fire({
+        title: "Pedido realizado com sucesso!",
+        text: "Acompanhe seu pedido pelo WhatsApp!",
+        imageUrl: "https://i.ibb.co/M8Z78yM/sapiens.png",
+        imageWidth: 400,
+        imageHeight: 300,
+        imageAlt: "Custom image",
+        icon: 'success',
+      });
+    }
+  });
+});
+
 
 
 
@@ -220,3 +278,31 @@ if (isOpen) {
 }
 
 
+const deliveryCheckbox = document.getElementById('delivery-checkbox');
+const pickupCheckbox = document.getElementById('pickup-checkbox');
+const deliveryAddress = document.getElementById('delivery-address');
+const pickupAddress = document.getElementById('pickup-address');
+
+// Mostra o campo de endereço de entrega quando o checkbox de entrega é selecionado
+document.addEventListener('DOMContentLoaded', function () {
+  const deliveryRadio = document.getElementById('delivery-radio');
+  const pickupRadio = document.getElementById('pickup-radio');
+  const deliveryAddress = document.getElementById('delivery-address');
+  const pickupAddress = document.getElementById('pickup-address');
+
+  // Mostra o campo de endereço de entrega quando o radio de entrega é selecionado
+  deliveryRadio.addEventListener('change', function () {
+    if (deliveryRadio.checked) {
+      deliveryAddress.style.display = 'block';
+      pickupAddress.style.display = 'none';
+    }
+  });
+
+  // Mostra o campo de endereço da loja quando o radio de retirada é selecionado
+  pickupRadio.addEventListener('change', function () {
+    if (pickupRadio.checked) {
+      pickupAddress.style.display = 'block';
+      deliveryAddress.style.display = 'none';
+    }
+  });
+});
