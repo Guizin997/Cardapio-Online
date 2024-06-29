@@ -157,21 +157,21 @@ addressInput.addEventListener('input', function (e) {
 //FINALIZAR PEDIDO
 checkoutBtn.addEventListener('click', function () {
   const isOpen = checkOpenRestaurant();
-  if (!isOpen) {
-    Toastify({
-      text: "Ops, o Restaurante está fechado!",
-      duration: 3000,
-      close: true,
-      gravity: "top", // `top` or `bottom`
-      position: "right", // `left`, `center` or `right`
-      stopOnFocus: true, // Prevents dismissing of toast on hover
-      style: {
-        background: "#ef4444",
-      },
-      onClick: function () { } // Callback after click
-    }).showToast();
-    return
-  }
+  // if (!isOpen) {
+  //   Toastify({
+  //     text: "Ops, o Restaurante está fechado!",
+  //     duration: 3000,
+  //     close: true,
+  //     gravity: "top", // `top` or `bottom`
+  //     position: "right", // `left`, `center` or `right`
+  //     stopOnFocus: true, // Prevents dismissing of toast on hover
+  //     style: {
+  //       background: "#ef4444",
+  //     },
+  //     onClick: function () { } // Callback after click
+  //   }).showToast();
+  //   return
+  // }
   // Verifica se há itens no carrinho
   if (cart.length === 0) {
     return;
