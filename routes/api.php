@@ -1,8 +1,22 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Rotas de autenticação
+Route::post('/register', [RegisteredUserController::class, 'store']);
+Route::post('/login', [AuthenticatedSessionController::class, 'store']);
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->middleware('auth:sanctum');
+
+// Rotas para produtos
+Route::apiResource('products', ProductController::class);
+
+// Rotas para pedidos
+Route::apiResource('orders', OrderController::class);
+
+// Rotas para favoritos
+Route::apiResource('favorites', FavoriteController::class);
