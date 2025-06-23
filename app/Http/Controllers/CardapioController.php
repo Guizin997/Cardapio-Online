@@ -11,10 +11,7 @@ use Illuminate\Support\Str;
 class CardapioController extends Controller
 {
     public function index() {
-        $produtos = Product::all();
-        return view('index', [
-            'produtos' => $produtos
-        ]);
+        return Product::all();
     }
 
 
