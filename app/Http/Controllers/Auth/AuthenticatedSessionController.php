@@ -3,34 +3,36 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 
 class AuthenticatedSessionController extends Controller
 {
-    public function store(Request $request)
+    /**
+     * Handle an incoming authentication request.
+     */
+    public function store(LoginRequest $request): Response
     {
-        $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
+        $request->authenticate();
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            throw ValidationException::withMessages([
-                'email' => ['As credenciais fornecidas estão incorretas.'],
-            ]);
-        }
+        $request->session()->regenerate();
 
-        $user = Auth::user();
-        $token = $user->createToken('token_name')->plainTextToken;
-
-        return response()->json(['token' => $token, 'user' => $user]);
+        return response()->noContent();
     }
 
-    public function destroy(Request $request)
+    /**
+     * Destroy an authenticated session.
+     */
+    public function destroy(Request $request): Response
     {
-        $request->user()->currentAccessToken()->delete();
+        Auth::guard('web')->logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
         return response()->noContent();
     }
 }
