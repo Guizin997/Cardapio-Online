@@ -8,36 +8,77 @@ use Illuminate\Http\Request;
 class ProductController extends Controller
 {
     public function index()
-    {
-        return Product::all();
-    }
+{
+    $products = Product::orderBy('id')->get()->map(function ($product) {
+        return [
+            'id' => $product->id,
+            'name' => $product->name,
+            'description' => $product->description,
+            'price' => number_format($product->price, 2, ',', '.'), // <-- Aqui
+            'image' => $product->image,
+            'created_at' => $product->created_at,
+            'updated_at' => $product->updated_at,
+        ];
+    });
+
+    return response()->json([
+        'success' => true,
+        'data' => $products
+    ], 200);
+}
+
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric',
             'image' => 'required|string',
         ]);
 
-        return Product::create($request->all());
+        $product = Product::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Produto criado com sucesso.',
+            'data' => $product
+        ], 201);
     }
 
     public function show(Product $product)
     {
-        return $product;
+        return response()->json([
+            'success' => true,
+            'data' => $product
+        ], 200);
     }
 
     public function update(Request $request, Product $product)
     {
-        $product->update($request->all());
-        return $product;
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'price' => 'required|numeric',
+            'image' => 'required|string',
+        ]);
+
+        $product->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Produto atualizado com sucesso.',
+            'data' => $product
+        ], 200);
     }
 
     public function destroy(Product $product)
     {
         $product->delete();
-        return response()->noContent();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Produto excluído com sucesso.'
+        ], 200);
     }
 }

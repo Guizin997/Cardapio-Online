@@ -3,20 +3,24 @@
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\FavoriteController;
-use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request; // ✅ Importação necessária
 
 // Rotas de autenticação
-Route::post('/register', [RegisteredUserController::class, 'store']);
-Route::post('/login', [AuthController::class, 'store']);
-Route::post('/logout', [AuthController::class, 'destroy'])->middleware('auth:sanctum');
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
 
-// Rotas para produtos
-Route::apiResource('products', ProductController::class);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', function (Request $request) {
+        return response()->json($request->user());
+    });
 
-// Rotas para pedidos
-Route::apiResource('orders', OrderController::class);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    
+    Route::apiResource('products', ProductController::class);
+    Route::apiResource('orders', OrderController::class);
+    Route::apiResource('favorites', FavoriteController::class);
 
-// Rotas para favoritos
-Route::apiResource('favorites', FavoriteController::class);
+    Route::get('/orders/user-summary/{userId}', [OrderController::class, 'getUserOrderSummary']);
+});
